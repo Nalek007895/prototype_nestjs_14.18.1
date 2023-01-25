@@ -9,21 +9,24 @@ import { ChangeUserAccountPwdDto } from '../dto/change-user-account-pwd.dto'
 
 @Injectable()
 export class UserAccountLogic {
-  constructor(private readonly userAccountService: UserAccountService) {}
+  constructor(private readonly userAccountService: UserAccountService) { }
 
   async createUserAccountLogic(payload: CreateUserAccountDto) {
-    const userDataEmail = await this.userAccountService.findOne({
-      status: StatusEnum.ACTIVE,
-      email: payload.email
-    })
-    const userDataPhone = await this.userAccountService.findOne({
-      status: StatusEnum.ACTIVE,
-      phone: payload.phone
+    const userData = await this.userAccountService.findOne({
+      stutas: StatusEnum.ACTIVE,
+      $or: [
+        {
+          email: payload.email
+        },
+        {
+          phone: payload.phone
+        }
+      ]
     })
 
-    if (userDataEmail) {
+    if (payload.email === userData.email) {
       throw new BadRequestException(`Email ${payload.email} already used.`)
-    } else if (userDataPhone) {
+    }else if (payload.phone === userData.phone) {
       throw new BadRequestException(
         `NumberPhone ${payload.phone} already used.`
       )
